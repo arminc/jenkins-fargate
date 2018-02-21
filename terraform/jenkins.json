@@ -1,0 +1,19 @@
+[{
+    "name": "jenkins",
+    "image": "jenkins/jenkins:2.108-alpine",
+    "portMappings": [
+      {
+        "containerPort": 8080,
+        "protocol": "tcp"
+      }
+    ],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-region": "us-east-1",
+        "awslogs-group": "jenkins",
+        "awslogs-stream-prefix": "master"
+      }
+    },
+    "essential": true
+}]

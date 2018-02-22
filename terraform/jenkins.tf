@@ -22,18 +22,48 @@ resource "aws_ecs_service" "jenkins" {
 
   network_configuration {
     subnets          = ["${aws_subnet.private_subnet.*.id}"]
-    security_groups  = []
+    security_groups  = ["${aws_security_group.jenkins.id}"]
     assign_public_ip = "false"
   }
 
   load_balancer {
-    container_name = "jenkins"
-    container_port = 8080
+    container_name   = "jenkins"
+    container_port   = 8080
     target_group_arn = "${aws_alb_target_group.http.arn}"
   }
+
+  depends_on = ["aws_alb_listener.http"]
 }
 
 resource "aws_cloudwatch_log_group" "jenkins" {
   name              = "jenkins"
   retention_in_days = 7
+}
+
+resource "aws_security_group" "jenkins" {
+  name   = "${var.environment}_jenkins"
+  vpc_id = "${aws_vpc.vpc.id}"
+
+  tags {
+    Environment = "${var.environment}"
+  }
+}
+
+resource "aws_security_group_rule" "jenkins" {
+  type                     = "ingress"
+  from_port                = 8080
+  to_port                  = 8080
+  protocol                 = "TCP"
+  source_security_group_id = "${aws_security_group.alb.id}"
+  security_group_id        = "${aws_security_group.jenkins.id}"
+  description              = "Open to ALB"
+}
+
+resource "aws_security_group_rule" "outbound_internet_access_jenkins" {
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = "${aws_security_group.jenkins.id}"
 }

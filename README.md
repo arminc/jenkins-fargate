@@ -10,7 +10,6 @@ terraform apply
 
 ## TODO
 
-- [] ALB can't make taks healthy
 - [] Use hash for task-definition.json so it does not recreate it
 - [] Fix task settings like grace period or % running
 - [] Disable admin password

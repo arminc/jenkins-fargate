@@ -30,3 +30,48 @@ variable "cluster" {
   description = "The name of the ECS cluster"
   default     = "jenkins"
 }
+
+variable "deregistration_delay" {
+  default     = "60"
+  description = "The default deregistration delay"
+}
+
+variable "http_health_check_interval" {
+  default     = 30
+  description = "The default http health check interval"
+}
+
+variable "http_health_check_path" {
+  default     = "/"
+  description = "The default http health check path"
+}
+
+variable "http_health_check_port" {
+  default     = "8080"
+  description = "The default http health check port"
+}
+
+variable "http_health_check_protocol" {
+  default     = "HTTP"
+  description = "The default http health check protocol"
+}
+
+variable "http_health_check_timeout" {
+  default     = 5
+  description = "The default http health check timeout"
+}
+
+variable "http_health_check_healthy_threshold" {
+  default     = 3
+  description = "The default http health check healthy threshold"
+}
+
+variable "http_health_check_unhealthy_threshold" {
+  default     = 3
+  description = "The default http health check unhealthy threshold"
+}
+
+variable "http_health_check_matcher" {
+  default     = "403"
+  description = "The default http matcher (HTTP CODE)"
+}

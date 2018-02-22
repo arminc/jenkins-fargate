@@ -8,6 +8,11 @@ resource "aws_ecs_task_definition" "jenkins" {
   memory                   = "2048"
 }
 
+/*
+Service needs an iam_role, but the role needs to be an 'service-linked role'. 
+It is not possible to create this with terraform https://github.com/terraform-providers/terraform-provider-aws/issues/921
+This is not a problem because AWS creates it automatically with the name 'AWSServiceRoleForECS'
+*/
 resource "aws_ecs_service" "jenkins" {
   name            = "jenkins"
   cluster         = "${aws_ecs_cluster.jenkins.id}"
@@ -19,6 +24,12 @@ resource "aws_ecs_service" "jenkins" {
     subnets          = ["${aws_subnet.private_subnet.*.id}"]
     security_groups  = []
     assign_public_ip = "false"
+  }
+
+  load_balancer {
+    container_name = "jenkins"
+    container_port = 8080
+    target_group_arn = "${aws_alb_target_group.http.arn}"
   }
 }
 

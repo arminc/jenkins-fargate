@@ -15,5 +15,11 @@
         "awslogs-stream-prefix": "master"
       }
     },
+    "environment": [
+        {
+          "name": "JAVA_OPTS",
+          "value": "-Dhudson.DNSMultiCast.disabled=true"
+        }
+    ],
     "essential": true
 }]

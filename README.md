@@ -10,10 +10,11 @@ terraform apply
 
 ## TODO
 
-- [] Add ALB and connect Jenkins to it
-- [] Use a service role, otherwise one get's attached
-- [] Fix task settings like grace period or % running
+- [] ALB can't make taks healthy
 - [] Use hash for task-definition.json so it does not recreate it
+- [] Fix task settings like grace period or % running
+- [] Disable admin password
+- [] Change health check to be 200 instead of 403
 - [] Configure Jenkins to have agents (manually)
 - [] Automatically configure agents
 - [] Infrastructure drawing

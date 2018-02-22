@@ -21,3 +21,8 @@ resource "aws_ecs_service" "jenkins" {
     assign_public_ip = "false"
   }
 }
+
+resource "aws_cloudwatch_log_group" "jenkins" {
+  name              = "jenkins"
+  retention_in_days = 7
+}

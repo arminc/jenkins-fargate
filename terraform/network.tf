@@ -81,14 +81,14 @@ resource "aws_route_table_association" "private_subnet" {
 }
 
 resource "aws_nat_gateway" "nat" {
-  count         = "${length(aws_subnet.public_subnet.*.id)}"
+  count         = "${length(var.private_subnet_cidrs)}"
   allocation_id = "${element(aws_eip.nat.*.id, count.index)}"
   subnet_id     = "${element(aws_subnet.public_subnet.*.id, count.index)}"
 }
 
 resource "aws_eip" "nat" {
   vpc   = true
-  count = "${length(aws_subnet.public_subnet.*.id)}"
+  count = "${length(var.private_subnet_cidrs)}"
 }
 
 resource "aws_route" "private_nat_route" {

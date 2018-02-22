@@ -1,11 +1,44 @@
 resource "aws_ecs_task_definition" "jenkins" {
   family                   = "jenkins"
-  container_definitions    = "${file("jenkins.json")}"
   execution_role_arn       = "${aws_iam_role.ecs_task_execution_role.arn}"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = "1024"
   memory                   = "2048"
+
+  container_definitions = <<EOF
+[
+    {
+        "cpu": 0,
+        "environment": [
+            {
+                "name": "JAVA_OPTS",
+                "value": "-Dhudson.DNSMultiCast.disabled=true"
+            }
+        ],
+        "essential": true,
+        "image": "jenkins/jenkins:2.108-alpine",
+        "logConfiguration": {
+            "logDriver": "awslogs",
+            "options": {
+                "awslogs-group": "jenkins",
+                "awslogs-region": "us-east-1",
+                "awslogs-stream-prefix": "master"
+            }
+        },
+        "mountPoints": [],
+        "name": "jenkins",
+        "portMappings": [
+            {
+                "containerPort": 8080,
+                "hostPort": 8080,
+                "protocol": "tcp"
+            }
+        ],
+        "volumesFrom": []
+    }
+]
+EOF
 }
 
 /*

@@ -10,7 +10,6 @@ terraform apply
 
 ## TODO
 
-- [] Use hash for task-definition.json so it does not recreate it
 - [] Fix task settings like grace period or % running
 - [] Disable admin password
 - [] Change health check to be 200 instead of 403

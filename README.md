@@ -10,8 +10,6 @@ terraform apply
 
 ## TODO
 
-- [] Disable admin password
-- [] Change health check to be 200 instead of 403
-- [] Configure Jenkins to have agents (manually)
 - [] Automatically configure agents
+- [] Write readme
 - [] Infrastructure drawing

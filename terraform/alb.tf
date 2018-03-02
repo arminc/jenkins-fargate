@@ -1,72 +1,31 @@
-resource "aws_alb_target_group" "http" {
-  name                 = "${var.environment}-default-http"
-  port                 = 80
-  protocol             = "HTTP"
-  vpc_id               = "${aws_vpc.vpc.id}"
-  deregistration_delay = "${var.deregistration_delay}"
-  target_type          = "ip"
+module "jenkins_http" {
+  source  = "terraform-aws-modules/security-group/aws//modules/http-80"
+  version = "v1.19.0"
 
-  health_check {
-    interval            = "${var.http_health_check_interval}"
-    path                = "${var.http_health_check_path}"
-    port                = "${var.http_health_check_port}"
-    protocol            = "${var.http_health_check_protocol}"
-    timeout             = "${var.http_health_check_timeout}"
-    healthy_threshold   = "${var.http_health_check_healthy_threshold}"
-    unhealthy_threshold = "${var.http_health_check_unhealthy_threshold}"
-    matcher             = "${var.http_health_check_matcher}"
-  }
+  name        = "jenkins-alb-sg"
+  description = "Security group with HTTP ports open for everybody (IPv4 CIDR), egress ports are all world open"
+  vpc_id      = "${module.vpc.vpc_id}"
 
-  tags {
-    Environment = "${var.environment}"
-  }
+  ingress_cidr_blocks = ["0.0.0.0/0"]
 }
 
-resource "aws_alb" "alb" {
-  name            = "${var.environment}"
-  subnets         = ["${aws_subnet.public_subnet.*.id}"]
-  security_groups = ["${aws_security_group.alb.id}"]
+module "alb" {
+  source  = "github.com/terraform-aws-modules/terraform-aws-alb" //Does not work with target_type ip, only master works "terraform-aws-modules/alb/aws"
 
-  tags {
-    Environment = "${var.environment}"
-  }
-}
-
-resource "aws_alb_listener" "http" {
-  load_balancer_arn = "${aws_alb.alb.id}"
-  port              = "80"
-  protocol          = "HTTP"
-
-  default_action {
-    target_group_arn = "${aws_alb_target_group.http.id}"
-    type             = "forward"
-  }
-}
-
-resource "aws_security_group" "alb" {
-  name   = "${var.environment}_alb"
-  vpc_id = "${aws_vpc.vpc.id}"
-
-  tags {
-    Environment = "${var.environment}"
-  }
-}
-
-resource "aws_security_group_rule" "http" {
-  type              = "ingress"
-  from_port         = 80
-  to_port           = 80
-  protocol          = "TCP"
-  cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.alb.id}"
-  description       = "Open to the internet"
-}
-
-resource "aws_security_group_rule" "outbound_internet_access" {
-  type              = "egress"
-  from_port         = 0
-  to_port           = 0
-  protocol          = "-1"
-  cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.alb.id}"
+  alb_name              = "jenkins"
+  alb_protocols         = ["HTTP"]
+  alb_security_groups   = ["${module.jenkins_http.this_security_group_id}"]
+  certificate_arn       = ""
+  health_check_path     = "/"
+  health_check_port     = "8080"
+  health_check_interval = "30"
+  health_check_matcher  = "403"
+  deregistration_delay  = "60"
+  create_log_bucket     = true                                              //Mandatory otherwise module fails
+  log_bucket_name       = "jenkinsaccesslogbuckettempt"
+  log_location_prefix   = "alb"
+  subnets               = "${module.vpc.public_subnets}"
+  tags                  = "${map("Environment", "jenkins")}"
+  vpc_id                = "${module.vpc.vpc_id}"
+  target_type           = "ip"
 }
